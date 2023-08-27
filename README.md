@@ -1,3 +1,3 @@
-# MERN-Stack Infrastructure
+# DocuChat
 
-Clone this repo to provide the starter code for a comprehensive MERN-Stack project including token-based authentication.
+Chat with your documents
