@@ -3,7 +3,6 @@ import { signUp } from '../../utilities/users-service';
 
 export default class SignUpForm extends Component {
   state = {
-    name: '',
     email: '',
     password: '',
     confirm: '',
@@ -20,8 +19,8 @@ export default class SignUpForm extends Component {
   handleSubmit = async (evt) => {
     evt.preventDefault();
     try {
-      const {name, email, password} = this.state;
-      const formData = {name, email, password};
+      const {email, password} = this.state;
+      const formData = {email, password};
       // The promise returned by the signUp service
       // method will resolve to the user object included
       // in the payload of the JSON Web Token (JWT)
@@ -40,8 +39,6 @@ export default class SignUpForm extends Component {
       <div>
         <div className="form-container">
           <form autoComplete="off" onSubmit={this.handleSubmit}>
-            <label>Name</label>
-            <input type="text" name="name" value={this.state.name} onChange={this.handleChange} required />
             <label>Email</label>
             <input type="email" name="email" value={this.state.email} onChange={this.handleChange} required />
             <label>Password</label>
