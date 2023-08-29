@@ -35,10 +35,23 @@ export default function HomePage() {
       }
     };
   
-    const sendQuery = async () => {
+    const sendQuery = async (e) => {
+      e.preventDefault();
       if (!query) return
       setResult('')
       setLoading(true)
+      try {
+        // const formData = new FormData();
+        // formData.append("query", query);
+        const requestData = { query }
+        const result = await documentsAPI.chat(requestData);
+        setResult(result.response);
+        setLoading(false);
+        setQuery('');
+      } catch (err) {
+        console.log('err:', err);
+        setLoading(false);
+      }
     }
 
     return (
@@ -51,8 +64,16 @@ export default function HomePage() {
         <div>
           {processed && (
             <div>
-              <input/>
-              <button>Ask</button>
+              <form autoComplete="off" onSubmit={sendQuery}>
+                <input name="query" value={query} onChange={e => setQuery(e.target.value)}/>
+                <button type="submit">Chat</button>
+              </form>
+              {
+                loading && <p>Asking question...</p>
+              }
+              {
+                result && <p>{result}</p>
+              }
             </div>
           )}
         </div>

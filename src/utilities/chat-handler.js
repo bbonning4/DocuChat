@@ -6,7 +6,7 @@ class ChatService {
   }
 
   async startChat(data) {
-    const { body: { userInput } } = data;
+    const userInput = data.body;
     const response = await this.modelService.call(userInput);
     return response;
   }
