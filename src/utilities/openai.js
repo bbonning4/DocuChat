@@ -2,6 +2,7 @@ const path = require('path');
 const { HNSWLib } = require("langchain/vectorstores/hnswlib");
 const { RetrievalQAChain } = require('langchain/chains');
 const { OpenAIEmbeddings } = require("langchain/embeddings/openai");
+const { RecursiveCharacterTextSplitter } = require("langchain/text_splitter")
 const { ContextualCompressionRetriever } = require("langchain/retrievers/contextual_compression");
 const { LLMChainExtractor } = require("langchain/retrievers/document_compressors/chain_extract");
 const { ConversationChain } = require('langchain/chains');
@@ -12,7 +13,7 @@ const { getFileLoader } = require('./documentLoader.js');
 
 class OpenAiService {
   constructor () {
-    this.model = new OpenAI({ temperature: 0, verbose: true });
+    this.model = new OpenAI({ temperature: 0 });
 
     this.prompt = PromptTemplate.fromTemplate(`The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know.
 
@@ -54,9 +55,16 @@ class OpenAiService {
     }
 
     const docs = await loader.load();
+    // split docs into chunks
+    const textSplitter = new RecursiveCharacterTextSplitter({
+      chunkSize: 1000,
+      chunkOverlap: 0,
+    })
+    const splitDocs = await textSplitter.splitDocuments(docs);
+    console.log(splitDocs.length)
 
     const baseCompressor = LLMChainExtractor.fromLLM(this.model);
-    this.vectorStore = await HNSWLib.fromDocuments(docs, new OpenAIEmbeddings());
+    this.vectorStore = await HNSWLib.fromDocuments(splitDocs, new OpenAIEmbeddings());
     this.retriever = new ContextualCompressionRetriever({
       baseCompressor,
       baseRetriever: this.vectorStore.asRetriever(),
@@ -73,11 +81,16 @@ class OpenAiService {
   call = async (userInput) => {  
     const { chain, inputType, responseType } = this.assembleChain();
   
-    const { [responseType]: response } = await chain.call({
+    // const { [responseType]: response } = await chain.call({
+    //   [inputType]: userInput,
+    // });
+    const result = await chain.call({
       [inputType]: userInput,
     });
 
-   return { response };
+    // console.log(result);
+
+   return { response: result.text };
   }
 }
 

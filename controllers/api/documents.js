@@ -11,7 +11,6 @@ module.exports = {
 const chatService = new ChatService();
 
 async function processDocument(req, res) {
-  // load file?
   // split
   // vector store
   // 
