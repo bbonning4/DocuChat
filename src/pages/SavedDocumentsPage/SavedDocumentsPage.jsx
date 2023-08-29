@@ -1,15 +1,27 @@
-import { checkToken } from '../../utilities/users-service';
+import { useState, useEffect } from "react";
+import * as documentsAPI from "../../utilities/documents-api";
 
 export default function SavedDocumentsPage() {
-  async function handleCheckToken() {
-    const expDate = await checkToken();
-    console.log(expDate);
-  }
-  
+  const [docs, setDocs] = useState([]);
+
+  useEffect(function () {
+    async function getAllDocs() {
+      const userDocs = await documentsAPI.getAll();
+      setDocs(userDocs);
+    }
+    getAllDocs();
+  }, []);
+
+  const docsList = docs.map((doc) => (
+    <div key={doc._id}>
+      {doc.name}
+      <div className="divider"></div>
+    </div>
+  ))
+
   return (
     <>
-      <h1>SavedDocumentsPage</h1>
-      <button onClick={handleCheckToken}>Check When My Login Expires</button>
+      {docs.length ? docsList : <p>No saved documents.</p>}
     </>
   );
 }

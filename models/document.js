@@ -8,6 +8,12 @@ const documentSchema = new Schema(
       ref: "User",
       required: true,
     },
+    name: {
+      type: String,
+    },
+    url: {
+      type: String,
+    }
   },
   {
     timestamps: true,

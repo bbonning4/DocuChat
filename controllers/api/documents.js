@@ -1,11 +1,18 @@
+const User = require("../../models/user");
+const Document = require("../../models/document");
+
 const { PineconeClient } = require('@pinecone-database/pinecone');
 const { TextLoader } = require('langchain/document_loaders/fs/text')
 const { PDFLoader } = require('langchain/document_loaders/fs/pdf')
-const { ChatService } = require('../../src/utilities/chat-handler')
+const { ChatService } = require('../../src/utilities/chat-handler');
+
+const saveFile = require("../../config/save-file");
 
 module.exports = {
   processDocument,
-  chat
+  saveDocument,
+  chat,
+  getAll,
 };
 
 const chatService = new ChatService();
@@ -23,6 +30,17 @@ async function processDocument(req, res) {
   res.json('success');
 }
 
+async function saveDocument(req, res) {
+  const user = await User.findById(req.user._id);
+  const url = await saveFile(req.file);
+  const document = await Document.create({
+    user: user._id,
+    name: req.file.originalname,
+    url: url,
+  })
+  res.json(document);
+}
+
 async function chat(req, res) {
   const handlerData = {};
   console.log(req.body.query);
@@ -32,4 +50,9 @@ async function chat(req, res) {
   const response = await chatService.startChat(handlerData);
   req.body = response;
   res.json(response)
+}
+
+async function getAll(req, res) {
+  const docs = await Document.find({ user: req.user._id })
+  res.json(docs);
 }

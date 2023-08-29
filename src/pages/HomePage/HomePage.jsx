@@ -4,6 +4,7 @@ import * as documentsAPI from "../../utilities/documents-api";
 export default function HomePage() {
     const [selectedFile, setSelectedFile] = useState(null);
     const [processed, setProcessed] = useState(false);
+    const [saved, setSaved] = useState(false);
     const [query, setQuery] = useState('');
     const [result, setResult] = useState('');
     const [loading, setLoading] = useState(false);
@@ -35,6 +36,20 @@ export default function HomePage() {
       }
     };
   
+    const handleSave = async () => {
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        const result = await documentsAPI.saveDocument(formData);
+        if (result) {
+          setSaved(true);
+        }
+        console.log('result: ', result)
+      } else {
+        alert('Please select a file.');
+      }
+    }
+
     const sendQuery = async (e) => {
       e.preventDefault();
       if (!query) return
@@ -60,6 +75,7 @@ export default function HomePage() {
           <h1>Welcome to DocuChat!</h1>
           <input type="file" accept=".txt,.doc,.docx,.csv,.pdf" onChange={handleFileChange} />
           <button onClick={handleUpload}>Process</button>
+          <button onClick={handleSave}>SAVE</button>
         </div>
         <div>
           {processed && (

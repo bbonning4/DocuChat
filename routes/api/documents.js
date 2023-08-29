@@ -8,9 +8,14 @@ const storage = multer.diskStorage({
         cb(null, 'uploads/')
     }
 });
+const memoryStorage = multer.memoryStorage();
 const upload = multer({storage})
+const save = multer({storage: memoryStorage})
+
+router.get("/", ensureLoggedIn, documentsCtrl.getAll);
 
 router.post("/process", upload.single("file"), documentsCtrl.processDocument);
+router.post("/save", save.single("file"), ensureLoggedIn, documentsCtrl.saveDocument);
 router.post("/chat", documentsCtrl.chat);
 
 module.exports = router;
