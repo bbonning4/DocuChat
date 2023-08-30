@@ -13,6 +13,7 @@ module.exports = {
   processDocument,
   saveDocument,
   chat,
+  chatWithDocs,
   getAll,
   deleteDocs,
 };
@@ -20,9 +21,6 @@ module.exports = {
 const chatService = new ChatService();
 
 async function processDocument(req, res) {
-  // split
-  // vector store
-  //
   const handlerData = {};
   handlerData.files = req.file;
   handlerData.user = req.user;
@@ -52,6 +50,38 @@ async function chat(req, res) {
   const response = await chatService.startChat(handlerData);
   req.body = response;
   res.json(response);
+}
+
+async function chatWithDocs(req, res) {
+  const docs = req.body;
+
+  const docUrls = [];
+  const keys = [];
+
+  await Document.find({ _id: { $in: docs } })
+    .then((foundDocs) => {
+      foundDocs.forEach((doc) => {
+        docUrls.push(doc.url);
+      });
+    })
+    .catch((error) => {
+      console.error("Error fetching documents:", error);
+    });
+
+  docUrls.forEach((url) => {
+    const fileUrl = new URL(url);
+    const pathname = fileUrl.pathname;
+    const fileKey = decodeURIComponent(pathname.split("/").pop());
+    keys.push(fileKey);
+  });
+
+  const handlerData = {};
+  handlerData.files = keys;
+  handlerData.user = req.user;
+  const response = await chatService.ingestS3Files(handlerData);
+
+  req.body = response;
+  res.json(response.success);
 }
 
 async function getAll(req, res) {

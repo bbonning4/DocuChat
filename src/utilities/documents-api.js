@@ -17,5 +17,9 @@ export async function getAll() {
 }
 
 export async function deleteDocs(docs) {
-  return sendRequest(`${BASE_URL}/delete`, 'POST', docs, false)
+  return sendRequest(`${BASE_URL}/delete`, 'POST', docs, false);
+}
+
+export async function chatWithDocs(docs) {
+  return sendRequest(`${BASE_URL}/chatwithdocs`, 'POST', docs, false);
 }

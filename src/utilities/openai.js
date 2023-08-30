@@ -9,6 +9,7 @@ const { ConversationChain } = require('langchain/chains');
 const { PromptTemplate } = require('langchain/prompts');
 const { ConversationSummaryMemory } = require('langchain/memory');
 const { OpenAI } = require('langchain/llms/openai');
+const { S3Loader } = require('langchain/document_loaders/web/s3');
 const { getFileLoader } = require('./documentLoader.js');
 
 class OpenAiService {
@@ -65,6 +66,61 @@ class OpenAiService {
 
     const baseCompressor = LLMChainExtractor.fromLLM(this.model);
     this.vectorStore = await HNSWLib.fromDocuments(splitDocs, new OpenAIEmbeddings());
+    this.retriever = new ContextualCompressionRetriever({
+      baseCompressor,
+      baseRetriever: this.vectorStore.asRetriever(),
+    });
+
+    this.chain = RetrievalQAChain.fromLLM(
+      this.model, 
+      this.retriever, 
+      { returnSourceDocuments: true }
+    );
+    return { success: true };
+  }
+
+  async ingestS3Files(data) {
+    const { files } = data;
+    
+    const s3Config = {
+      region: process.env.S3_REGION,
+        credentials: {
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+        },
+    }
+    const unstructuredAPIURL = "http://localhost:8000/general/v0/general";
+    const unstructuredAPIKey = process.env.UNSTRUCTURED_API_KEY;
+
+    const docs = [];
+
+    for (const fileKey of files) {
+      const loader = new S3Loader({
+        bucket: process.env.S3_BUCKET,
+        key: fileKey,
+        s3Config,
+        unstructuredAPIURL,
+        unstructuredAPIKey,
+      });
+
+      const fileData = await loader.load()
+      docs.push(fileData);
+    }
+    console.log("docLength: ", docs.length);
+
+    // split docs into chunks
+    const textSplitter = new RecursiveCharacterTextSplitter({
+      chunkSize: 1000,
+      chunkOverlap: 0,
+    })
+    const allSplitDocs = [];
+    for (const doc of docs) {
+      const splitDocs = await textSplitter.splitDocuments(doc);
+      allSplitDocs.push(...splitDocs);
+    }
+
+    const baseCompressor = LLMChainExtractor.fromLLM(this.model);
+    this.vectorStore = await HNSWLib.fromDocuments(allSplitDocs, new OpenAIEmbeddings());
     this.retriever = new ContextualCompressionRetriever({
       baseCompressor,
       baseRetriever: this.vectorStore.asRetriever(),

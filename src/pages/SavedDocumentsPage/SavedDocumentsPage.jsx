@@ -4,6 +4,7 @@ import * as documentsAPI from "../../utilities/documents-api";
 export default function SavedDocumentsPage() {
   const [docs, setDocs] = useState([]);
   const [selectedDocs, setSelectedDocs] = useState([]);
+  const [chatting, setChatting] = useState(false);
 
   useEffect(function () {
     async function getAllDocs() {
@@ -27,6 +28,11 @@ export default function SavedDocumentsPage() {
     setSelectedDocs([]);
   };
 
+  const chatWithDocs = async () => {
+    const processed = await documentsAPI.chatWithDocs(selectedDocs);
+    setChatting(processed);
+  }
+
   const docsList = docs.map((doc) => (
     <div key={doc._id}>
       <label>
@@ -45,7 +51,8 @@ export default function SavedDocumentsPage() {
     <>
       {docs.length ? (
         <>
-          <button onClick={deleteSelectedDocs}>Delete Selected</button>
+          <button className="btn" onClick={deleteSelectedDocs}>Delete Selected</button>
+          <button className="btn" onClick={chatWithDocs}>Chat With Selected Documents</button>
           {docsList}
         </>
       ) : (

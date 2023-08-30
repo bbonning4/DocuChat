@@ -56,8 +56,6 @@ export default function HomePage() {
       setResult('')
       setLoading(true)
       try {
-        // const formData = new FormData();
-        // formData.append("query", query);
         const requestData = { query }
         const result = await documentsAPI.chat(requestData);
         setResult(result.response);

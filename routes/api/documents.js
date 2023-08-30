@@ -17,6 +17,7 @@ router.get("/", ensureLoggedIn, documentsCtrl.getAll);
 router.post("/process", upload.single("file"), documentsCtrl.processDocument);
 router.post("/save", save.single("file"), ensureLoggedIn, documentsCtrl.saveDocument);
 router.post("/chat", documentsCtrl.chat);
+router.post("/chatwithdocs", ensureLoggedIn, documentsCtrl.chatWithDocs);
 router.post("/delete", ensureLoggedIn, documentsCtrl.deleteDocs);
 
 module.exports = router;
