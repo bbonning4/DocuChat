@@ -15,3 +15,7 @@ export async function chat(requestData) {
 export async function getAll() {
   return sendRequest(`${BASE_URL}`, 'GET');
 }
+
+export async function deleteDocs(docs) {
+  return sendRequest(`${BASE_URL}/delete`, 'POST', docs, false)
+}
