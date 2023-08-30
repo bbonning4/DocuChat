@@ -80,7 +80,7 @@ export default function HomePage() {
             <div>
               <form autoComplete="off" onSubmit={sendQuery}>
                 <input name="query" value={query} onChange={e => setQuery(e.target.value)}/>
-                <button type="submit">Chat</button>
+                <button className="btn" type="submit">Chat</button>
               </form>
               {
                 loading && <p>Asking question...</p>
