@@ -1,8 +1,8 @@
-// import { HuggingFaceService } from './hf.js'
+const { HuggingFaceService } = require('./huggingface.js');
 const { OpenAiService } = require('./openai.js');
 
 const MODEL_STORES = {
-    // 'HUGGING_FACE': HuggingFaceService,
+    'HUGGING_FACE': HuggingFaceService,
     'OPEN_AI': OpenAiService,
 };
 

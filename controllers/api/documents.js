@@ -1,9 +1,6 @@
 const User = require("../../models/user");
 const Document = require("../../models/document");
 
-const { PineconeClient } = require("@pinecone-database/pinecone");
-const { TextLoader } = require("langchain/document_loaders/fs/text");
-const { PDFLoader } = require("langchain/document_loaders/fs/pdf");
 const { ChatService } = require("../../src/utilities/chat-handler");
 
 const saveFile = require("../../config/save-file");
