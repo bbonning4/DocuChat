@@ -1,96 +1,123 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import * as documentsAPI from "../../utilities/documents-api";
 
 export default function HomePage() {
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [processed, setProcessed] = useState(false);
-    const [saved, setSaved] = useState(false);
-    const [query, setQuery] = useState('');
-    const [result, setResult] = useState('');
-    const [loading, setLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [processed, setProcessed] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [query, setQuery] = useState("");
+  const [result, setResult] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    const allowedFileTypes = ['application/pdf', 'text/plain', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/csv'];
-  
-    const handleFileChange = (event) => {
-      const file = event.target.files[0];
-      
-      if (file && allowedFileTypes.includes(file.type)) {
-        setSelectedFile(file);
-      } else {
-        setSelectedFile(null);
-        alert('Please select a valid file type: .txt, .doc, .docx, .csv, or .pdf');
-      }
-    };
-  
-    const handleUpload = async () => {
-      if (selectedFile) {
-        const formData = new FormData();
-        formData.append("file", selectedFile);
-        const result = await documentsAPI.processDocument(formData);
-        if (result) {
-          setProcessed(true);
-        }
-        console.log('result: ', result)
-      } else {
-        alert('Please select a file to upload.');
-      }
-    };
-  
-    const handleSave = async () => {
-      if (selectedFile) {
-        const formData = new FormData();
-        formData.append("file", selectedFile);
-        const result = await documentsAPI.saveDocument(formData);
-        if (result) {
-          setSaved(true);
-        }
-        console.log('result: ', result)
-      } else {
-        alert('Please select a file.');
-      }
+  const allowedFileTypes = [
+    "application/pdf",
+    "text/plain",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "text/csv",
+  ];
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+
+    if (file && allowedFileTypes.includes(file.type)) {
+      setSelectedFile(file);
+    } else {
+      setSelectedFile(null);
+      alert(
+        "Please select a valid file type: .txt, .doc, .docx, .csv, or .pdf"
+      );
     }
+  };
 
-    const sendQuery = async (e) => {
-      e.preventDefault();
-      if (!query) return
-      setResult('')
-      setLoading(true)
-      try {
-        const requestData = { query }
-        const result = await documentsAPI.chat(requestData);
-        setResult(result.response);
-        setLoading(false);
-        setQuery('');
-      } catch (err) {
-        console.log('err:', err);
-        setLoading(false);
+  const handleUpload = async () => {
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      const result = await documentsAPI.processDocument(formData);
+      if (result) {
+        setProcessed(true);
       }
+      console.log("result: ", result);
+    } else {
+      alert("Please select a file to upload.");
     }
+  };
 
-    return (
-      <>
-        <div>
-          <h1>Welcome to DocuChat!</h1>
-          <input type="file" accept=".txt,.doc,.docx,.csv,.pdf" onChange={handleFileChange} />
-          <button className="btn" onClick={handleUpload}>Process</button>
-          <button className="btn" onClick={handleSave}>SAVE</button>
+  const handleSave = async () => {
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      const result = await documentsAPI.saveDocument(formData);
+      if (result) {
+        setSaved(true);
+      }
+      console.log("result: ", result);
+    } else {
+      alert("Please select a file.");
+    }
+  };
+
+  const sendQuery = async (e) => {
+    e.preventDefault();
+    if (!query) return;
+    setResult("");
+    setLoading(true);
+    try {
+      const requestData = { query };
+      const result = await documentsAPI.chat(requestData);
+      setResult(result.response);
+      setLoading(false);
+      setQuery("");
+    } catch (err) {
+      console.log("err:", err);
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <div>
+        <input
+          type="file"
+          accept=".txt,.doc,.docx,.csv,.pdf"
+          onChange={handleFileChange}
+        />
+        <button className="btn" onClick={handleUpload}>
+          Process
+        </button>
+        <button className="btn" onClick={handleSave}>
+          SAVE
+        </button>
+      </div>
+      <div>
+        {processed && (
+          <div>
+            <form autoComplete="off" onSubmit={sendQuery}>
+              <input
+                name="query"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              <button className="btn" type="submit">
+                Chat
+              </button>
+            </form>
+            {loading && <p>Asking question...</p>}
+            {result && <p>{result}</p>}
+          </div>
+        )}
+      </div>
+      {!result && !loading && (
+        <div className="card flex flex-col items-center justify-center">
+          <div className="card-content m-5 rounded border-solid border-white bg-neutral p-8">
+            <h1>
+              Welcome! To begin, choose a file and process it to begin chatting
+              with it, or save the file to chat with it later.
+            </h1>
+          </div>
         </div>
-        <div>
-          {processed && (
-            <div>
-              <form autoComplete="off" onSubmit={sendQuery}>
-                <input name="query" value={query} onChange={e => setQuery(e.target.value)}/>
-                <button className="btn" type="submit">Chat</button>
-              </form>
-              {
-                loading && <p>Asking question...</p>
-              }
-              {
-                result && <p>{result}</p>
-              }
-            </div>
-          )}
-        </div>
-      </>
-    );
+      )}
+    </>
+  );
 }
