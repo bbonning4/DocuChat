@@ -72,8 +72,8 @@ export default function HomePage() {
         <div>
           <h1>Welcome to DocuChat!</h1>
           <input type="file" accept=".txt,.doc,.docx,.csv,.pdf" onChange={handleFileChange} />
-          <button onClick={handleUpload}>Process</button>
-          <button onClick={handleSave}>SAVE</button>
+          <button className="btn" onClick={handleUpload}>Process</button>
+          <button className="btn" onClick={handleSave}>SAVE</button>
         </div>
         <div>
           {processed && (
