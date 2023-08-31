@@ -76,48 +76,56 @@ export default function HomePage() {
   };
 
   return (
-    <>
-      <div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center justify-center">
+      <div className="mx-auto max-w-xs">
         <input
           type="file"
           accept=".txt,.doc,.docx,.csv,.pdf"
+          className="file-input file-input-bordered file-input-accent w-full"
           onChange={handleFileChange}
         />
-        <button className="btn" onClick={handleUpload}>
+        <button className="btn-primary btn w-full mt-4" onClick={handleUpload}>
           Process
         </button>
-        <button className="btn" onClick={handleSave}>
+        <button className="btn-primary btn w-full mt-2" onClick={handleSave}>
           SAVE
         </button>
       </div>
-      <div>
-        {processed && (
+      <div className="mx-auto max-w-xs">
+        {processed ? (
           <div>
             <form autoComplete="off" onSubmit={sendQuery}>
               <input
                 name="query"
                 value={query}
+                placeholder="What would you like to ask?"
+                className="input input-bordered input-accent w-full"
                 onChange={(e) => setQuery(e.target.value)}
               />
-              <button className="btn" type="submit">
+              <button className="btn-primary btn w-full mt-4" type="submit">
                 Chat
               </button>
             </form>
-            {loading && <p>Asking question...</p>}
-            {result && <p>{result}</p>}
+            {loading && <p className="mt-2">Asking question...</p>}
+            {result && (
+              <div className="card flex flex-col items-center justify-center mt-4">
+                <div className="card-content m-5 rounded border-solid border-white bg-neutral p-8">
+                  {result}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="card flex flex-col items-center justify-center mt-4">
+            <div className="card-content m-5 rounded border-solid border-white bg-neutral p-8">
+              <h1 className="text-center">
+                Welcome! To begin, choose a file and process it to begin chatting
+                with it, or save the file to chat with it later.
+              </h1>
+            </div>
           </div>
         )}
       </div>
-      {!result && !loading && (
-        <div className="card flex flex-col items-center justify-center">
-          <div className="card-content m-5 rounded border-solid border-white bg-neutral p-8">
-            <h1>
-              Welcome! To begin, choose a file and process it to begin chatting
-              with it, or save the file to chat with it later.
-            </h1>
-          </div>
-        </div>
-      )}
-    </>
+    </div>
   );
 }

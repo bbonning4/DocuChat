@@ -57,51 +57,68 @@ export default function SavedDocumentsPage() {
   };
 
   const docsList = docs.map((doc) => (
-    <div key={doc._id}>
-      <label>
-        <input
-          type="checkbox"
-          checked={selectedDocs.includes(doc._id)}
-          onChange={() => toggleSelection(doc._id)}
-        />
-        {doc.name}
-      </label>
-      <div className="divider"></div>
+    <div
+      key={doc._id}
+      className={`p-4 rounded-lg mb-4 ${
+        selectedDocs.includes(doc._id)
+          ? "bg-accent text-black"
+          : "bg-primary text-white"
+      }`}
+      onClick={() => toggleSelection(doc._id)}
+    >
+      {doc.name}
     </div>
   ));
 
   return (
-    <>
+    <div className="mx-auto max-w-3xl">
       {chatting && (
-        <div>
-          <form autoComplete="off" onSubmit={sendQuery}>
+        <div className="mb-4">
+          <form
+            autoComplete="off"
+            onSubmit={sendQuery}
+            className="flex items-center"
+          >
             <input
               name="query"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              className="input input-bordered input-accent w-full"
+              placeholder="Ask a question"
             />
-            <button className="btn" type="submit">
+            <button className="btn-primary btn ml-2" type="submit">
               Chat
             </button>
           </form>
-          {loading && <p>Asking question...</p>}
-          {result && <p>{result}</p>}
+          {loading && <p className="mt-2">Asking question...</p>}
+          {result && (
+            <div className="card flex flex-col items-center justify-center mt-4">
+              <div className="card-content m-5 rounded border-solid border-white bg-neutral p-8">
+                {result}
+              </div>
+            </div>
+          )}
         </div>
       )}
       {docs.length ? (
-        <>
-          {processing && <p>Processing, please wait...</p>}
-          <button className="btn" onClick={deleteSelectedDocs}>
+        <div>
+          {processing && <p className="mb-2">Processing, please wait...</p>}
+          <button
+            className="btn-secondary btn mb-4"
+            onClick={deleteSelectedDocs}
+          >
             Delete Selected
           </button>
-          <button className="btn" onClick={chatWithDocs}>
-            Chat With Selected Documents
-          </button>
+          <div className="mb-6">
+            <button className="btn-accent btn mr-2" onClick={chatWithDocs}>
+              Chat With Selected Documents
+            </button>
+          </div>
           {docsList}
-        </>
+        </div>
       ) : (
-        <p>No saved documents.</p>
+        <p className="mt-6">No saved documents.</p>
       )}
-    </>
+    </div>
   );
 }
